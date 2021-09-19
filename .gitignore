@@ -1,0 +1,5 @@
+*.bat
+*.map
+*.obj
+*.sym
+*\rgbds
