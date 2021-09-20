@@ -11,18 +11,20 @@
 ;****************************************************************************************************************************************************
 	;Program includes
 	INCLUDE	"Includes/Hardware.inc"
+	INCLUDE "Includes/Subroutines.inc"
+	INCLUDE "Includes/Wram.inc"
 	
 	;Asset includes
-	
-;****************************************************************************************************************************************************
-;*	user data (constants)
-;****************************************************************************************************************************************************
+	INCLUDE "Assets/Tiles.z80"
+	INCLUDE "Assets/BackgroundTileset.z80"
+	INCLUDE "Assets/Window.z80"
+	INCLUDE "Assets/Background.z80"
 
-
 ;****************************************************************************************************************************************************
-;*	equates
+;*	Constants
 ;****************************************************************************************************************************************************
-
+TILE_SIZE EQU 16
+PALETTE_SIZE EQU 8
 
 ;****************************************************************************************************************************************************
 ;*	cartridge header
@@ -143,8 +145,84 @@ JOYPAD_VECT:
 
 	SECTION "Program Start",ROM0[$0150]
 Start::
-	jp Start	;Program Code starts here.
+	di
+	ld sp, $FFFE	;set up stack pointer
 	
+	xor a
+	ldh [rLCDC], a		;turn off the screen
+	
+	ld de, _RAM
+	ld bc, 8192
+	ld h, 0
+	call Memset		;clear ram
+	
+	xor a
+	ld hl, TilesCGB
+	ld b, 2 * PALETTE_SIZE
+	call LoadPalettes
+	
+	ld hl, Tiles
+	ld de, _VRAM + TILE_SIZE
+	ld bc, TILE_SIZE * 2
+	call Memcpy		;Load tiles used for window
+	
+	ld hl, BackgroundTileset
+	ld bc, TILE_SIZE * 1
+	call Memcpy		;Load the background tile into slot 3
+	
+	ld hl, Window
+	ld de, _SCRN1
+	ld c, 4
+	call LoadMap
+	
+	ld hl, Background
+	ld de, _SCRN0
+	ld c, 18
+	call LoadMap
+	
+	ld a, WX_OFS
+	ld [rWX], a
+	
+	ld a, 14*8
+	ld [rWY], a		;Move window to bottom of screen
+	
+	ld a, IEF_VBLANK
+	ld [rIE], a
+	ei
+	
+	ld a, LCDCF_ON | LCDCF_WINON | LCDCF_WIN9C00 | LCDCF_BG8000 | LCDCF_BG9800 | LCDCF_OBJOFF | LCDCF_BGON
+	ld [rLCDC], a
+	
+Main::
+	halt
 
+.scrolling:
+	ld a, [scrolling_delay]
+	inc a
+	ld [scrolling_delay], a
+	cp 6					;For 6 frames, don't scroll
+	jr nz, Main
+	
+	xor a
+	ld [scrolling_delay], a
+	
+	ld a, [scrolling_tile_index]
+	inc a
+	cp 8					;Make sure scrolling_tile_index is in range
+	jr nz, .write_back
+	xor a
+	
+.write_back:
+	ld [scrolling_tile_index], a
+	
+	ld hl, BackgroundTileset	;hl = BackgroundTileset + scrolling_tile_index * TILE_SIZE, or hl = BackgroundTileset[scrolling_tile_index]
+	ld b, a
+	ld e, TILE_SIZE
+	call Multiply
+	
+	ld de, _VRAM + TILE_SIZE * 3
+	ld bc, TILE_SIZE * 1
+	call Memcpy				;Rewrite current tile
+	jr Main
 
 ;*** End Of File ***
