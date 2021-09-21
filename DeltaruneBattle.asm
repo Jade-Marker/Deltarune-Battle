@@ -16,7 +16,7 @@
 	
 	;Asset includes
 	INCLUDE "Assets/Tiles.z80"
-	INCLUDE "Assets/BackgroundTileset.z80"
+	INCLUDE "Assets/BackgroundTiles16.inc"
 	INCLUDE "Assets/Window.z80"
 	INCLUDE "Assets/Background.z80"
 
@@ -25,6 +25,14 @@
 ;****************************************************************************************************************************************************
 TILE_SIZE EQU 16
 PALETTE_SIZE EQU 8
+
+WINDOW_POS EQU 14*8
+
+SCROLLING_WIDTH EQU 2
+SCROLLING_HEIGHT EQU 2
+SCROLLING_START_SLOT EQU 3
+NUM_SCROLLING_FRAMES EQU 16
+SCROLLING_DELAY EQU 6
 
 ;****************************************************************************************************************************************************
 ;*	cartridge header
@@ -158,32 +166,32 @@ Start::
 	
 	xor a
 	ld hl, TilesCGB
-	ld b, 2 * PALETTE_SIZE
+	ld b, PaletteLength * PALETTE_SIZE
 	call LoadPalettes
 	
 	ld hl, Tiles
 	ld de, _VRAM + TILE_SIZE
-	ld bc, TILE_SIZE * 2
+	ld bc, TILE_SIZE * TilesLength
 	call Memcpy		;Load tiles used for window
 	
 	ld hl, BackgroundTileset
-	ld bc, TILE_SIZE * 1
-	call Memcpy		;Load the background tile into slot 3
+	ld bc, TILE_SIZE * SCROLLING_WIDTH * SCROLLING_HEIGHT
+	call Memcpy		;Load the background tiles into slot 3-6
 	
 	ld hl, Window
 	ld de, _SCRN1
-	ld c, 4
+	ld c, WindowHeight
 	call LoadMap
 	
 	ld hl, Background
 	ld de, _SCRN0
-	ld c, 18
+	ld c, BackgroundHeight
 	call LoadMap
 	
 	ld a, WX_OFS
 	ld [rWX], a
 	
-	ld a, 14*8
+	ld a, WINDOW_POS
 	ld [rWY], a		;Move window to bottom of screen
 	
 	ld a, IEF_VBLANK
@@ -200,7 +208,7 @@ Main::
 	ld a, [scrolling_delay]
 	inc a
 	ld [scrolling_delay], a
-	cp 6					;For 6 frames, don't scroll
+	cp SCROLLING_DELAY					;For SCROLLING_DELAY frames, don't scroll
 	jr nz, Main
 	
 	xor a
@@ -208,7 +216,7 @@ Main::
 	
 	ld a, [scrolling_tile_index]
 	inc a
-	cp 8					;Make sure scrolling_tile_index is in range
+	cp NUM_SCROLLING_FRAMES					;Make sure scrolling_tile_index is in range
 	jr nz, .write_back
 	xor a
 	
@@ -217,12 +225,12 @@ Main::
 	
 	ld hl, BackgroundTileset	;hl = BackgroundTileset + scrolling_tile_index * TILE_SIZE, or hl = BackgroundTileset[scrolling_tile_index]
 	ld b, a
-	ld e, TILE_SIZE
+	ld e, TILE_SIZE * SCROLLING_WIDTH * SCROLLING_HEIGHT
 	call Multiply
 	
-	ld de, _VRAM + TILE_SIZE * 3
-	ld bc, TILE_SIZE * 1
-	call Memcpy				;Rewrite current tile
+	ld de, _VRAM + TILE_SIZE * SCROLLING_START_SLOT
+	ld bc, TILE_SIZE * SCROLLING_WIDTH * SCROLLING_HEIGHT
+	call Memcpy				;Rewrite current tiles
 	jr Main
 
 ;*** End Of File ***

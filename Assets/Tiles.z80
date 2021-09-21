@@ -23,11 +23,13 @@
 SECTION "Tiles", ROM0
 
 ; CGBpalette entries.
+PaletteLength EQU 2
 TilesCGB::
 DW 0,6278,32767,15360
 DW 0,8200,4100,16419
 
 ; Start of tile array.
+TilesLength EQU 2
 Tiles::
 DB $FF,$00,$FF,$00,$00,$00,$00,$00
 DB $00,$00,$00,$00,$00,$00,$00,$00
