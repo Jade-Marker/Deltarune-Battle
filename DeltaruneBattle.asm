@@ -12,6 +12,7 @@
 	;Program includes
 	INCLUDE	"Includes/Hardware.inc"
 	INCLUDE "Includes/Subroutines.inc"
+	INCLUDE "Includes/Macros.inc"
 	INCLUDE "Includes/Wram.inc"
 	
 	;Asset includes
@@ -19,6 +20,7 @@
 	INCLUDE "Assets/BackgroundTiles16.inc"
 	INCLUDE "Assets/Window.z80"
 	INCLUDE "Assets/Background.z80"
+	INCLUDE "Assets/Battlers.inc"
 
 ;****************************************************************************************************************************************************
 ;*	Constants
@@ -33,6 +35,11 @@ SCROLLING_HEIGHT EQU 2
 SCROLLING_START_SLOT EQU 3
 NUM_SCROLLING_FRAMES EQU 16
 SCROLLING_DELAY EQU 6
+
+SPRITE_SIZE EQU 4
+
+KRIS_X EQU 24 + OAM_X_OFS
+KRIS_Y EQU 7 + OAM_Y_OFS
 
 ;****************************************************************************************************************************************************
 ;*	cartridge header
@@ -72,10 +79,13 @@ RST_38:
 
 	SECTION	"V-Blank IRQ Vector",ROM0[$40]
 VBL_VECT:
+	call Scrolling
+	call UpdateSpriteBuffer
 	reti
 	
 	SECTION	"LCD IRQ Vector",ROM0[$48]
 LCD_VECT:
+	call UpdateSpriteMidDraw
 	reti
 
 	SECTION	"Timer IRQ Vector",ROM0[$50]
@@ -159,6 +169,10 @@ Start::
 	xor a
 	ldh [rLCDC], a		;turn off the screen
 	
+	ld a, KEY1F_DBLSPEED | KEY1F_PREPARE
+	ld [rKEY1], a
+	stop	;Put cpu into double speed
+	
 	ld de, _RAM
 	ld bc, 8192
 	ld h, 0
@@ -194,22 +208,38 @@ Start::
 	ld a, WINDOW_POS
 	ld [rWY], a		;Move window to bottom of screen
 	
-	ld a, IEF_VBLANK
-	ld [rIE], a
-	ei
+	ld hl, KrisIdle
+	ld de, $8100
+	ld bc, EndOfKris - KrisIdle
+	call Memcpy		;Load all the tiles used for Kris' idle sprite
 	
-	ld a, LCDCF_ON | LCDCF_WINON | LCDCF_WIN9C00 | LCDCF_BG8000 | LCDCF_BG9800 | LCDCF_OBJOFF | LCDCF_BGON
+	ld a, OCPSF_AUTOINC
+	ld hl, KrisPal0
+	ld b, 3 * PALETTE_SIZE
+	LoadSpritePalettes
+	
+	ld a, LCDCF_ON | LCDCF_WINON | LCDCF_WIN9C00 | LCDCF_BG8000 | LCDCF_BG9800 | LCDCF_OBJON | LCDCF_OBJ16 | LCDCF_BGON
 	ld [rLCDC], a
+	
+	ld a, STATF_LYC
+	ld [rSTAT], a
+	ld a, KRIS_Y + 16 - OAM_Y_OFS
+	ld [rLYC], a				;Set the STAT interrupt to occur once the first row of Kris' sprites have been drawn
+	
+	ld a, IEF_VBLANK | IEF_STAT
+	ld [rIE], a 
+	ei
 	
 Main::
 	halt
+	jr Main
 
-.scrolling:
+Scrolling::
 	ld a, [scrolling_delay]
 	inc a
 	ld [scrolling_delay], a
 	cp SCROLLING_DELAY					;For SCROLLING_DELAY frames, don't scroll
-	jr nz, Main
+	ret nz
 	
 	xor a
 	ld [scrolling_delay], a
@@ -231,6 +261,27 @@ Main::
 	ld de, _VRAM + TILE_SIZE * SCROLLING_START_SLOT
 	ld bc, TILE_SIZE * SCROLLING_WIDTH * SCROLLING_HEIGHT
 	call Memcpy				;Rewrite current tiles
-	jr Main
+	ret
 
+UpdateSpriteBuffer::
+	ld hl, KrisRow0
+	ld de, _OAMRAM
+	ld bc, SPRITE_SIZE * (KrisRow2 - KrisRow0)/4
+	call Memcpy		;Set the first 2 rows in preparation for the next frame
+	
+	ret
+
+UpdateSpriteMidDraw::
+	ld hl, KrisRow2
+	ld de, _OAMRAM
+	ld b, SPRITE_SIZE * (KrisRowEnd - KrisRow2)/4
+	ScanlineMemcpy	;Since the first 5 sprites have been drawn, we can now reset them to draw the last row
+	ret
+
+	;Current plan is to allocate 14 sprites to each battler per 2 lines of sprites, and 3 palettes in total (but this could change if needed)
+	;Then, you let the first row of sprites draw. While the 2nd row is being drawn, the first row is updated to represent the 3rd row. This continues until the sprite is drawn
+	;One issue with this is that if we try to use any sprites for battle effects, they probably wont be drawn (only 10 sprites per line)
+	;To get around this, we can treat oam as 3 buffers. The first 2 used for the battlers, and the 3rd used as general purpose
+	;The portion of oam allocated to each could change each frame. This way, instead of shuffling sprites, we are shuffling the buffers
+	
 ;*** End Of File ***
