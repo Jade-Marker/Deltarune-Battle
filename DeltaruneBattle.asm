@@ -214,7 +214,7 @@ Start::
 	call Memcpy		;Load all the tiles used for Kris' idle sprite
 	
 	ld a, OCPSF_AUTOINC
-	ld hl, KrisPal0
+	ld hl, KrisPalettes
 	ld b, 3 * PALETTE_SIZE
 	LoadSpritePalettes
 	

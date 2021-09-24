@@ -1,22 +1,21 @@
  SECTION "Battlers", ROM0
 
-;Should probably rename these to make the naming consistent
 KrisIdle::
-INCBIN "Assets/Kris_Idle0.bin"
-INCBIN "Assets/Kris_Idle1.bin"
+INCBIN "Assets/Kris_Idle0-0.bin"
+INCBIN "Assets/Kris_Idle0-1.bin"
+INCBIN "Assets/Kris_Idle1-0.bin"
+INCBIN "Assets/Kris_Idle1-1.bin"
+INCBIN "Assets/Kris_Idle1-2.bin"
+INCBIN "Assets/Kris_Idle1-3.bin"
+INCBIN "Assets/Kris_Idle1-4.bin"
 INCBIN "Assets/Kris_Idle2-0.bin"
 INCBIN "Assets/Kris_Idle2-1.bin"
-INCBIN "Assets/Kris_Idle3-0.bin"
-INCBIN "Assets/Kris_Idle3-1.bin"
-INCBIN "Assets/Kris_Idle3-2.bin"
-INCBIN "Assets/Kris_Idle4-0.bin"
-INCBIN "Assets/Kris_Idle4-1.bin"
 EndOfKris::
 
-KrisPal0::
-INCBIN "Assets/Kris_Idle0.pal"
-INCBIN "Assets/Kris_Idle1.pal"
-INCBIN "Assets/Kris_Idle2-1.pal"
+KrisPalettes::
+INCBIN "Assets/Kris_IdlePal0.pal"
+INCBIN "Assets/Kris_IdlePal1.pal"
+INCBIN "Assets/Kris_IdlePal2.pal"
 
 KrisRow0::
 db KRIS_Y, KRIS_X, $10, 0
