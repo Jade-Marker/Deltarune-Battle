@@ -2,3 +2,7 @@
 *.obj
 *.sym
 *\rgbds
+AssetRipper/bin
+AssetRipper/obj
+AssetRipper/.vs
+data.win
