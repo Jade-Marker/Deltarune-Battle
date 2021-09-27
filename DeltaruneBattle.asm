@@ -41,6 +41,14 @@ SPRITE_SIZE EQU 4
 KRIS_X EQU 24 + OAM_X_OFS
 KRIS_Y EQU 7 + OAM_Y_OFS
 
+WEREWIRE_X EQU 113 + OAM_X_OFS
+WEREWIRE_Y EQU 50 + OAM_Y_OFS
+WEREWIRE_PAL_START EQU 3
+
+KRIS_LY_INT EQU KRIS_Y + 16 - OAM_Y_OFS
+WEREWIRE_LY_INT_0 EQU WEREWIRE_Y + 16 - OAM_Y_OFS
+WEREWIRE_LY_INT_1 EQU WEREWIRE_Y + 16*2 - OAM_Y_OFS
+
 ;****************************************************************************************************************************************************
 ;*	cartridge header
 ;****************************************************************************************************************************************************
@@ -213,8 +221,17 @@ Start::
 	ld bc, EndOfKris - KrisIdle
 	call Memcpy		;Load all the tiles used for Kris' idle sprite
 	
+	ld hl, WerewireIdle
+	ld bc, EndOfWerewire - WerewireIdle
+	call Memcpy
+	
 	ld a, OCPSF_AUTOINC
 	ld hl, KrisPalettes
+	ld b, 3 * PALETTE_SIZE
+	LoadSpritePalettes
+	
+	ld a, OCPSF_AUTOINC | (WEREWIRE_PAL_START << 3)
+	ld hl, WerewirePalettes
 	ld b, 3 * PALETTE_SIZE
 	LoadSpritePalettes
 	
@@ -223,7 +240,7 @@ Start::
 	
 	ld a, STATF_LYC
 	ld [rSTAT], a
-	ld a, KRIS_Y + 16 - OAM_Y_OFS
+	ld a, KRIS_LY_INT
 	ld [rLYC], a				;Set the STAT interrupt to occur once the first row of Kris' sprites have been drawn
 	
 	ld a, IEF_VBLANK | IEF_STAT
@@ -269,19 +286,61 @@ UpdateSpriteBuffer::
 	ld bc, SPRITE_SIZE * (KrisRow2 - KrisRow0)/4
 	call Memcpy		;Set the first 2 rows in preparation for the next frame
 	
+	;This needs to be scanlineMemcpy, since it sometimes overruns out of vblank
+	ld hl, WerewireRow0
+	ld de, $FE34
+	ld b, SPRITE_SIZE * (WerewireRow2 - WerewireRow0)/4
+	ScanlineMemcpy
+	
+	ld a, KRIS_LY_INT
+	ld [rLYC], a
+	
 	ret
 
 UpdateSpriteMidDraw::
+	ld a, [rLY]
+	cp KRIS_LY_INT
+	jr z, KrisUpdate
+	
+	cp WEREWIRE_LY_INT_0
+	jr z, WerewireUpdate0
+	
+	cp WEREWIRE_LY_INT_1
+	jr z, WerewireUpdate1
+
+KrisUpdate::
 	ld hl, KrisRow2
 	ld de, _OAMRAM
 	ld b, SPRITE_SIZE * (KrisRowEnd - KrisRow2)/4
 	ScanlineMemcpy	;Since the first 5 sprites have been drawn, we can now reset them to draw the last row
+	
+	ld a, WEREWIRE_LY_INT_0
+	ld [rLYC], a
 	ret
 
+WerewireUpdate0::
+	ld hl, WerewireRow2
+	ld de, $FE34
+	ld b, SPRITE_SIZE * (WerewireRow3 - WerewireRow2)/4
+	ScanlineMemcpy
+	
+	ld a, WEREWIRE_LY_INT_1
+	ld [rLYC], a
+	ret
+
+WerewireUpdate1::
+	ld hl, WerewireRow3
+	ld de, $FE50
+	ld b, SPRITE_SIZE * (WerewireRowEnd - WerewireRow3)/4
+	ScanlineMemcpy
+	ret
+	
 	;Current plan is to allocate 14 sprites to each battler per 2 lines of sprites, and 3 palettes in total (but this could change if needed)
 	;Then, you let the first row of sprites draw. While the 2nd row is being drawn, the first row is updated to represent the 3rd row. This continues until the sprite is drawn
 	;One issue with this is that if we try to use any sprites for battle effects, they probably wont be drawn (only 10 sprites per line)
 	;To get around this, we can treat oam as 3 buffers. The first 2 used for the battlers, and the 3rd used as general purpose
 	;The portion of oam allocated to each could change each frame. This way, instead of shuffling sprites, we are shuffling the buffers
+	
+	;ScanlineMemcpy expects $FE00 to be the first address, so it is slightly slower for other start locations
 	
 ;*** End Of File ***
