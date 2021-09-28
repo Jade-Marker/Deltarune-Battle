@@ -112,6 +112,17 @@ namespace AssetRipper
             return spriteSheet.Clone(rect, PixelFormat.Format32bppArgb);
         }
 
+        static void BlankSection(Bitmap source, Rectangle section)
+        {
+            for(int y = section.Y; y < section.Bottom; y++)
+            {
+                for(int x = section.X; x < section.Right; x++)
+                {
+                    source.SetPixel(x, y, Color.FromArgb(0, 0, 0, 0));
+                }
+            }
+        }
+
         static void GenerateKrisGraphics()
         {
             Bitmap krisIdle = GetBaseImage("Assets/Img_25.png", new Rectangle(120, 1027, 40, 48));
@@ -142,42 +153,24 @@ namespace AssetRipper
             Console.WriteLine("Outputting Kris_Idle0-2.png");
         }
 
-        static void GenerateWerewireGraphics()
+        private static void GenerateMausGraphics()
         {
-            Bitmap werewireIdle = GetBaseImage("Assets/Img_22.png", new Rectangle(1719, 1323, 48, 64));
+            Bitmap mausIdle = GetBaseImage("Assets/Img_21.png", new Rectangle(1891, 1176, 40, 16));
+            BlankSection(mausIdle, new Rectangle(0, 12, 40, 4));
 
-            Color pink = Color.FromArgb(255, 121, 225);
-            Color yellow = Color.FromArgb(255, 255, 74);
-            Color blue = Color.FromArgb(0, 207, 251);
-            Color darkBlue = Color.FromArgb(112, 154, 194);
-            Color green = Color.FromArgb(131, 255, 113);
+            List<Color> mausPalette0 = new List<Color> { Color.FromArgb(255, 255, 255, 255), Color.FromArgb(72,62,149), Color.FromArgb(117, 85, 219), Color.FromArgb(156, 85, 219) };
+            List<Color> mausPalette1 = new List<Color> { Color.FromArgb(255, 255, 255, 255), Color.FromArgb(0, 0, 0), Color.FromArgb(202, 85, 219), Color.FromArgb(195, 195, 195) };
 
-            List<Color> werePalette0 = new List<Color> { Color.FromArgb(255, 255, 255, 255), pink, yellow, darkBlue };
-            List<Color> werePalette1 = new List<Color> { Color.FromArgb(255, 255, 255, 255), darkBlue, green, blue };
-            List<Color> werePalette2 = new List<Color> { Color.FromArgb(255, 255, 255, 255), pink, yellow, blue };
+            Bitmap maus0_0;
+            maus0_0 = SaveSection(mausIdle, new Rectangle(0, 0, 40, 16), mausPalette0, null);
+            maus0_0.Save("Assets/Maus_Idle0-0.png", ImageFormat.Png);
+            Console.WriteLine("Outputting Maus_Idle0-0.png");
 
-            Bitmap were0_0;
-            were0_0 = SaveSection(werewireIdle, new Rectangle(8, 0, 32, 16), werePalette0, null);
-            were0_0 = SaveSection(werewireIdle, new Rectangle(0, 16, 8, 16), werePalette0, were0_0);
-            were0_0 = SaveSection(werewireIdle, new Rectangle(8, 16, 24, 16), werePalette0, were0_0);
-            were0_0 = SaveSection(werewireIdle, new Rectangle(8, 48, 32, 16), werePalette0, were0_0);
-            were0_0.Save("Assets/Werewire_Idle0-0.png", ImageFormat.Png);
-            Console.WriteLine("Outputting Werewire_Idle0-0.png");
+            Bitmap maus0_1;
+            maus0_1 = SaveSection(mausIdle, new Rectangle(0, 0, 40, 16), mausPalette1, null);
+            maus0_1.Save("Assets/Maus_Idle0-1.png", ImageFormat.Png);
+            Console.WriteLine("Outputting Maus_Idle0-1.png");
 
-            Bitmap were0_1;
-            were0_1 = SaveSection(werewireIdle, new Rectangle(0, 0, 16, 16), werePalette1, null);
-            were0_1 = SaveSection(werewireIdle, new Rectangle(0, 16, 40, 16), werePalette1, were0_1);
-            were0_1 = SaveSection(werewireIdle, new Rectangle(8, 32, 24, 16), werePalette1, were0_1);
-            were0_1 = SaveSection(werewireIdle, new Rectangle(8, 48, 8, 16), werePalette1, were0_1);
-            were0_1.Save("Assets/Werewire_Idle0-1.png", ImageFormat.Png);
-            Console.WriteLine("Outputting Werewire_Idle0-1.png");
-
-            Bitmap were0_2;
-            were0_2 = SaveSection(werewireIdle, new Rectangle(8, 16, 8, 16), werePalette2, null);
-            were0_2 = SaveSection(werewireIdle, new Rectangle(24, 16, 8, 16), werePalette2, were0_2);
-            were0_2 = SaveSection(werewireIdle, new Rectangle(0, 32, 48, 16), werePalette2, were0_2);
-            were0_2.Save("Assets/Werewire_Idle0-2.png", ImageFormat.Png);
-            Console.WriteLine("Outputting Werewire_Idle0-2.png");
         }
 
         static void Main(string[] args)
@@ -187,7 +180,7 @@ namespace AssetRipper
             Console.WriteLine("Sprite sheets generated");
 
             GenerateKrisGraphics();
-            GenerateWerewireGraphics();
+            GenerateMausGraphics();
 
             Console.WriteLine("Deleting sprite sheets");
             for (int i = 0; i < numSpriteSheets; i++)
@@ -213,6 +206,10 @@ namespace AssetRipper
                     numAttempts++;
                 }
             }
+
+            #if DEBUG
+            Console.ReadLine();
+            #endif
         }
     }
 
