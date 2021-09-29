@@ -42,8 +42,8 @@ INCBIN "Assets/Maus_Idle0-1.bin"
 EndOfMaus::
 
 MausPalettes::
-INCBIN "Assets/Maus_Idle0-0.pal"
-INCBIN "Assets/Maus_Idle0-1.pal"
+INCBIN "Assets/Maus_IdlePal0.pal"
+INCBIN "Assets/Maus_IdlePal1.pal"
 
 MausRow0::
 db MAUS_Y, MAUS_X+8*0, $38, MAUS_PAL_START + 0
@@ -56,3 +56,47 @@ db MAUS_Y, MAUS_X+8*0, $42, MAUS_PAL_START + 1
 db MAUS_Y, MAUS_X+8*1, $44, MAUS_PAL_START + 1
 db MAUS_Y, MAUS_X+8*4, $4A, MAUS_PAL_START + 1
 MausRowEnd::
+
+SusieIdle::
+INCBIN "Assets/Susie_Idle0-0.bin"
+INCBIN "Assets/Susie_Idle0-1.bin"
+INCBIN "Assets/Susie_Idle0-2.bin"
+EndOfSusie::
+
+SusiePalettes::
+INCBIN "Assets/Susie_IdlePal0.pal"
+INCBIN "Assets/Susie_IdlePal1.pal"
+INCBIN "Assets/Susie_IdlePal2.pal"
+
+SUSIE_X EQU 24 + OAM_X_OFS
+SUSIE_Y EQU 65 + OAM_Y_OFS
+
+SusieRow0::
+db SUSIE_Y, SUSIE_X+8*0, $4C, 0
+db SUSIE_Y, SUSIE_X+8*1, $4E, 0
+db SUSIE_Y, SUSIE_X+8*2, $50, 0
+db SUSIE_Y, SUSIE_X+8*3, $52, 0
+db SUSIE_Y, SUSIE_X+8*1, $62, 1
+db SUSIE_Y, SUSIE_X+8*2+1, $64, 1
+
+db SUSIE_Y+4, SUSIE_X-8*3+2, $74, 2
+db SUSIE_Y+10, SUSIE_X-8*2+2, $76, 2
+db SUSIE_Y+8, SUSIE_X-8*1+2, $78, 2
+db SUSIE_Y, SUSIE_X+8*3, $7C, 2
+
+SusieRow1::
+db SUSIE_Y+16, SUSIE_X-8*1+2, $54, 0
+db SUSIE_Y+16, SUSIE_X+8*0+2, $56, 0
+db SUSIE_Y+16, SUSIE_X+8*1+2, $58, 0
+db SUSIE_Y+16, SUSIE_X+8*2+2, $5A, 0
+db SUSIE_Y+16, SUSIE_X+8*0+3, $68, 1
+db SUSIE_Y+16, SUSIE_X+8*1+3, $6A, 1
+
+SusieRow2::
+db SUSIE_Y+16*2, SUSIE_X+8*0-3, $5C, 0
+db SUSIE_Y+16*2, SUSIE_X+8*1-3, $5E, 0
+db SUSIE_Y+16*2, SUSIE_X+8*2-3, $60, 0
+db SUSIE_Y+16*2, SUSIE_X+8*0-1, $6E, 1
+db SUSIE_Y+16*2, SUSIE_X+8*1-1, $70, 1
+db SUSIE_Y+16*2, SUSIE_X+8*2-1, $72, 1
+SusieRowEnd::

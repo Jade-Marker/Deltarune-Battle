@@ -123,6 +123,19 @@ namespace AssetRipper
             }
         }
 
+        static void ReplaceColours(Bitmap source, Dictionary<Color, Color> colorReplacements)
+        {
+            for(int y = 0; y < source.Height; y++)
+            {
+                for(int x = 0; x < source.Width; x++)
+                {
+                    Color color = source.GetPixel(x, y);
+                    if (colorReplacements.ContainsKey(color))
+                        source.SetPixel(x, y, colorReplacements[color]);
+                }
+            }
+        }
+
         static void GenerateKrisGraphics()
         {
             Bitmap krisIdle = GetBaseImage("Assets/Img_25.png", new Rectangle(120, 1027, 40, 48));
@@ -173,6 +186,61 @@ namespace AssetRipper
 
         }
 
+        private static void GenerateSusieGraphics()
+        {
+            Bitmap susieIdle = GetBaseImage("Assets/Img_25.png", new Rectangle(1118, 968, 56, 48));
+            BlankSection(susieIdle, new Rectangle(53, 8, 2, 4));
+            BlankSection(susieIdle, new Rectangle(17, 44, 39, 4));
+
+            List<Color> susiePalette0 = new List<Color> { Color.FromArgb(255, 255, 255, 255), Color.FromArgb(0, 32, 23), Color.FromArgb(136, 23, 106), Color.FromArgb(248, 131, 215) };
+            List<Color> susiePalette0Temp = new List<Color> { Color.FromArgb(255, 255, 255, 255), Color.FromArgb(0, 32, 23), Color.FromArgb(136, 23, 106), Color.FromArgb(248, 131, 215), Color.FromArgb(159, 24, 207), Color.FromArgb(95, 31, 156) };
+            List<Color> susiePalette1 = new List<Color> { Color.FromArgb(255, 255, 255, 255), Color.FromArgb(95, 31, 156), Color.FromArgb(159, 24, 207), Color.FromArgb(250, 177, 58) };
+            List<Color> susiePalette2 = new List<Color> { Color.FromArgb(255, 255, 255, 255), Color.FromArgb(0, 0, 0), Color.FromArgb(144, 149, 187), Color.FromArgb(62, 233, 194), Color.FromArgb(84, 79, 72), Color.FromArgb(117, 86, 161) };
+            
+            Dictionary<Color, Color> susieReplacementColors0 = new Dictionary<Color, Color>();
+            susieReplacementColors0.Add(Color.FromArgb(159, 24, 207), Color.FromArgb(136, 23, 106));
+            Dictionary<Color, Color> susieReplacementColors1 = new Dictionary<Color, Color>();
+            susieReplacementColors1.Add(Color.FromArgb(159, 24, 207), Color.FromArgb(248, 131, 215));
+            susieReplacementColors1.Add(Color.FromArgb(95, 31, 156), Color.FromArgb(248, 131, 215));
+            Dictionary<Color, Color> susieReplacementColors2 = new Dictionary<Color, Color>();
+            susieReplacementColors2.Add(Color.FromArgb(84, 79, 72), Color.FromArgb(144, 149, 187));
+            susieReplacementColors2.Add(Color.FromArgb(117, 86, 161), Color.FromArgb(144, 149, 187));
+
+            Bitmap susie0_0;
+            susie0_0 = SaveSection(susieIdle, new Rectangle(24, 0, 32, 16), susiePalette0, null);
+            susie0_0 = SaveSection(susieIdle, new Rectangle(19, 16, 8, 16), susiePalette0Temp, susie0_0);
+            ReplaceColours(susie0_0, susieReplacementColors0);
+            susie0_0 = SaveSection(susieIdle, new Rectangle(27, 16, 16, 16), susiePalette0, susie0_0);
+            susie0_0 = SaveSection(susieIdle, new Rectangle(43, 16, 3, 16), susiePalette0, susie0_0);
+            susie0_0 = SaveSection(susieIdle, new Rectangle(46, 16, 5, 16), susiePalette0Temp, susie0_0);
+            ReplaceColours(susie0_0, susieReplacementColors1);
+            susie0_0 = SaveSection(susieIdle, new Rectangle(22, 32, 8, 16), susiePalette0Temp, susie0_0);
+            ReplaceColours(susie0_0, susieReplacementColors0);
+            susie0_0 = SaveSection(susieIdle, new Rectangle(30, 32, 16, 16), susiePalette0, susie0_0);
+            susie0_0.Save("Assets/Susie_Idle0-0.png", ImageFormat.Png);
+            Console.WriteLine("Outputting Susie_Idle0-0.png");
+
+            Bitmap susie0_1;
+            susie0_1 = SaveSection(susieIdle, new Rectangle(32, 0, 8, 16), susiePalette1, null);
+            susie0_1 = SaveSection(susieIdle, new Rectangle(41, 0, 8, 16), susiePalette1, susie0_1);
+            susie0_1 = SaveSection(susieIdle, new Rectangle(20, 16, 32, 16), susiePalette1, susie0_1);
+            susie0_1 = SaveSection(susieIdle, new Rectangle(24, 32, 24, 16), susiePalette1, susie0_1);
+            susie0_1.Save("Assets/Susie_Idle0-1.png", ImageFormat.Png);
+            Console.WriteLine("Outputting Susie_Idle0-1.png");
+
+            Bitmap susie0_2;
+            susie0_2 = SaveSection(susieIdle, new Rectangle(0, 4, 8, 16), susiePalette2, null);
+            susie0_2 = SaveSection(susieIdle, new Rectangle(8, 10, 8, 16), susiePalette2, susie0_2);
+            susie0_2 = SaveSection(susieIdle, new Rectangle(16, 8, 8, 16), susiePalette2, susie0_2);
+            susie0_2 = SaveSection(susieIdle, new Rectangle(24, 2, 8, 16), susiePalette2, susie0_2);
+            susie0_2 = SaveSection(susieIdle, new Rectangle(48, 0, 8, 16), susiePalette2, susie0_2);
+            ReplaceColours(susie0_2, susieReplacementColors2);
+            susie0_2.SetPixel(10, 12, Color.FromArgb(144, 149, 187));
+            susie0_2.SetPixel(11, 12, Color.FromArgb(144, 149, 187));
+            susie0_2.Save("Assets/Susie_Idle0-2.png", ImageFormat.Png);
+            Console.WriteLine("Outputting Susie_Idle0-2.png");
+        }
+
         static void Main(string[] args)
         {
             Console.WriteLine("Generating sprite sheets");
@@ -181,6 +249,7 @@ namespace AssetRipper
 
             GenerateKrisGraphics();
             GenerateMausGraphics();
+            GenerateSusieGraphics();
 
             Console.WriteLine("Deleting sprite sheets");
             for (int i = 0; i < numSpriteSheets; i++)
@@ -210,7 +279,7 @@ namespace AssetRipper
             #if DEBUG
             Console.ReadLine();
             #endif
-        }
+        }  
     }
 
 }

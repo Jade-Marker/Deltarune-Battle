@@ -128,3 +128,19 @@ LoadPlane::
 	jr nz, .start
 	ret
 	
+;uses a, b, hl
+;a = OCPSF_AUTOINC | (initial palette no << 3)
+;hl = src
+;b = num palettes * PALETTE_SIZE
+LoadSpritePalettes::
+	ld [rOCPS], a
+	
+.loop:
+	ld a, [hl+]
+	ld [rOCPD], a
+	
+	dec b
+	jr nz, .loop
+	
+	ret
+	

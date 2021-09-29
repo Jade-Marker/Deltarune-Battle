@@ -45,8 +45,9 @@ MAUS_X EQU 113 + OAM_X_OFS
 MAUS_Y EQU 49 + OAM_Y_OFS
 MAUS_PAL_START EQU 3
 
-KRIS_LY_INT_0 EQU KRIS_Y + 16 - OAM_Y_OFS
-KRIS_LY_INT_1 EQU KRIS_Y + 16*2 + 6 - OAM_Y_OFS
+KRIS_LY_INT EQU KRIS_Y + 16 - OAM_Y_OFS
+SUSIE_LY_INT_0 EQU KRIS_Y + 16*2 + 6 - OAM_Y_OFS
+SUSIE_LY_INT_1 EQU SUSIE_Y + 16 - OAM_Y_OFS
 
 ;****************************************************************************************************************************************************
 ;*	cartridge header
@@ -224,22 +225,26 @@ Start::
 	ld bc, EndOfMaus - MausIdle
 	call Memcpy
 	
+	ld hl, SusieIdle
+	ld bc, EndOfSusie - SusieIdle
+	call Memcpy
+	
 	ld a, OCPSF_AUTOINC
 	ld hl, KrisPalettes
 	ld b, 3 * PALETTE_SIZE
-	LoadSpritePalettes
+	call LoadSpritePalettes
 	
 	ld a, OCPSF_AUTOINC | (MAUS_PAL_START << 3)
 	ld hl, MausPalettes
 	ld b, 3 * PALETTE_SIZE
-	LoadSpritePalettes
+	call LoadSpritePalettes
 	
 	ld a, LCDCF_ON | LCDCF_WINON | LCDCF_WIN9C00 | LCDCF_BG8000 | LCDCF_BG9800 | LCDCF_OBJON | LCDCF_OBJ16 | LCDCF_BGON
 	ld [rLCDC], a
 	
 	ld a, STATF_LYC
 	ld [rSTAT], a
-	ld a, KRIS_LY_INT_0
+	ld a, KRIS_LY_INT
 	ld [rLYC], a				;Set the STAT interrupt to occur once the first row of Kris' sprites have been drawn
 	
 	ld a, IEF_VBLANK | IEF_STAT
@@ -280,6 +285,11 @@ Scrolling::
 	ret
 
 UpdateSpriteBuffer::
+	ld a, OCPSF_AUTOINC
+	ld hl, KrisPalettes
+	ld b, 3 * PALETTE_SIZE
+	call LoadSpritePalettes
+
 	ld hl, KrisRow0
 	ld de, _OAMRAM
 	ld bc, SPRITE_SIZE * (KrisRow2 - KrisRow0)/4
@@ -291,33 +301,55 @@ UpdateSpriteBuffer::
 	ld b, SPRITE_SIZE * (MausRowEnd - MausRow0)/4
 	ScanlineMemcpy
 	
-	ld a, KRIS_LY_INT_0
+	ld a, KRIS_LY_INT
 	ld [rLYC], a
 	
 	ret
 
 UpdateSpriteMidDraw::
 	ld a, [rLY]
-	cp KRIS_LY_INT_0
-	jr z, KrisUpdate0
-	cp KRIS_LY_INT_1
-	jr z, KrisUpdate1
+	cp KRIS_LY_INT
+	jr z, KrisUpdate
+	cp SUSIE_LY_INT_0
+	jr z, SusieUpdate0
+	cp SUSIE_LY_INT_1
+	jp z, SusieUpdate1
 	
-KrisUpdate0::
+KrisUpdate::
 	ld hl, KrisRow2
 	ld de, _OAMRAM
 	ld b, SPRITE_SIZE * (KrisRowEnd - KrisRow2)/4
 	ScanlineMemcpy	;Since the first 5 sprites have been drawn, we can now reset them to draw the last row
 	
-	ld a, KRIS_LY_INT_1
+	ld a, SUSIE_LY_INT_0
 	ld [rLYC], a
 	ret
 
-KrisUpdate1::
-	ld h, 0
+SusieUpdate0::
+	ld hl, SusieRow0
 	ld de, _OAMRAM
-	ld b, SPRITE_SIZE * (KrisRowEnd - KrisRow2)/4
-	ScanlineMemset
+	ld b, SPRITE_SIZE * ((SusieRow1 - SusieRow0)/4)
+	ScanlineMemcpy
+	push hl
+	
+	ld a, OCPSF_AUTOINC
+	ld hl, SusiePalettes
+	ld b, 3 * PALETTE_SIZE
+	ScanlineLoadSpritePalettes
+	
+	pop hl
+	ld b, SPRITE_SIZE * ((SusieRow2 - SusieRow1)/4) + 1
+	ScanlineMemcpy
+	
+	ld a, SUSIE_LY_INT_1
+	ld [rLYC], a
+	ret
+	
+SusieUpdate1::
+	ld hl, SusieRow2
+	ld de, $FE40
+	ld b, SPRITE_SIZE * (SusieRowEnd - SusieRow2)/4
+	ScanlineMemcpy
 	ret
 	
 ;*** End Of File ***

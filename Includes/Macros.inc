@@ -2,10 +2,14 @@
 ;a = OCPSF_AUTOINC | (initial palette no << 3)
 ;hl = src
 ;b = num palettes * PALETTE_SIZE
-LoadSpritePalettes: MACRO	;This is a macro instead of a function so that it can be used for scanline stuff, since call and return add overhead
+ScanlineLoadSpritePalettes: MACRO	;This is a macro instead of a function so that it can be used for scanline stuff, since call and return add overhead
 	ld [rOCPS], a
-	
+
 .loop\@:
+	ld a, [rSTAT]
+	and STATF_LCD
+	jr nz, .loop\@
+	
 	ld a, [hl+]
 	ld [rOCPD], a
 	
