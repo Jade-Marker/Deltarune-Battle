@@ -14,6 +14,7 @@
 	INCLUDE "Includes/Subroutines.inc"
 	INCLUDE "Includes/Macros.inc"
 	INCLUDE "Includes/Wram.inc"
+	INCLUDE "Includes/gbt_player.inc"
 	
 	;Asset includes
 	INCLUDE "Assets/Tiles.z80"
@@ -21,6 +22,7 @@
 	INCLUDE "Assets/Window.z80"
 	INCLUDE "Assets/Background.z80"
 	INCLUDE "Assets/Battlers.inc"
+	INCLUDE "Assets/RudeBuster.asm"
 
 ;****************************************************************************************************************************************************
 ;*	Constants
@@ -87,8 +89,7 @@ RST_38:
 
 	SECTION	"V-Blank IRQ Vector",ROM0[$40]
 VBL_VECT:
-	call Scrolling
-	call UpdateSpriteBuffer
+	call VblankInterrupt
 	reti
 	
 	SECTION	"LCD IRQ Vector",ROM0[$48]
@@ -247,6 +248,12 @@ Start::
 	ld a, KRIS_LY_INT
 	ld [rLYC], a				;Set the STAT interrupt to occur once the first row of Kris' sprites have been drawn
 	
+	ld a, 6
+	ld bc, BANK(RudeBuster_data)
+	ld de, RudeBuster_data
+	call gbt_play
+	call gbt_loop
+	
 	ld a, IEF_VBLANK | IEF_STAT
 	ld [rIE], a 
 	ei
@@ -254,6 +261,12 @@ Start::
 Main::
 	halt
 	jr Main
+
+VblankInterrupt::
+	call Scrolling
+	call UpdateSpriteBuffer
+	call gbt_update
+	ret
 
 Scrolling::
 	ld a, [scrolling_delay]
