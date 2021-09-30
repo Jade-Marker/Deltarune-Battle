@@ -407,7 +407,7 @@ UpdateKris::
 	jr .frame5
 	
 .frame0:
-	ld hl, KrisRow0
+	ld hl, KrisRow0_0
 	jr .updateBuffer
 	
 .frame1:

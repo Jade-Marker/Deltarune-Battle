@@ -51,6 +51,28 @@ db KRIS_Y+8*4, KRIS_X+8, $34, 2
 db KRIS_Y+8*4, KRIS_X+8*2, $36, 2
 KrisRowEnd::
 
+KrisRow0_0::
+db $10
+db $12
+db $14
+db $24
+db $26
+
+db $16
+db $18
+db $1A
+db $28
+db $2A
+db $2C
+db $2E
+db $30
+
+db $1E
+db $20
+db $22
+db $34
+db $36
+
 KrisRow1_0::
 db $38
 db $3A

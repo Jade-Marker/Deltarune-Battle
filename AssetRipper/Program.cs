@@ -153,8 +153,6 @@ namespace AssetRipper
         static void GenerateKrisGraphics()
         {
             Bitmap krisIdle0 = GetBaseImage("Assets/Img_25.png", new Rectangle(120, 1027, 40, 48));
-            krisIdle0.Save("Kris_Idle0.png", ImageFormat.Png);
-
             Bitmap krisIdle1 = GetBaseImage("Assets/Img_26.png", new Rectangle(1221, 1760, 40, 48));    BlankSection(krisIdle1, new Rectangle(36, 7, 2, 7)); BlankSection(krisIdle1, new Rectangle(0, 38, 40, 10));
             Bitmap krisIdle2 = GetBaseImage("Assets/Img_26.png", new Rectangle(1219, 967, 40, 48));     BlankSection(krisIdle2, new Rectangle(36, 7, 2, 7)); BlankSection(krisIdle2, new Rectangle(0, 38, 40, 10));
             Bitmap krisIdle3 = GetBaseImage("Assets/Img_26.png", new Rectangle(1220, 1170, 40, 48));    BlankSection(krisIdle3, new Rectangle(36, 7, 2, 7)); BlankSection(krisIdle3, new Rectangle(0, 38, 40, 10));
