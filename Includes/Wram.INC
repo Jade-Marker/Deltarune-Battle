@@ -7,3 +7,10 @@ scrolling_delay:
 db
 scrolling_tile_index:
 db
+
+Kris_counter:
+db
+Kris_frame:
+db
+Kris_Buffer:
+ds 18*4

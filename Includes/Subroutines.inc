@@ -143,4 +143,22 @@ LoadSpritePalettes::
 	jr nz, .loop
 	
 	ret
+
+;uses a, b, de, hl
+;hl = src
+;de = dst
+;b = Num tiles to update
+UpdateWramSpriteBuffer::
+	ld a, [hl+]
+	ld [de], a
+	
+	inc de
+	inc de
+	inc de
+	inc de
+	
+	dec b
+	jr nz, UpdateWramSpriteBuffer
+	ret
+	
 	

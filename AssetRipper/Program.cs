@@ -136,34 +136,61 @@ namespace AssetRipper
             }
         }
 
+        static void OutputAdditionalKrisFrame(Bitmap source, List<Color> palette1, List<Color> palette2, string name)
+        {
+            Bitmap kris1;
+            kris1 = SaveSection(source, new Rectangle(0, 0, 24, 16), palette1, null);
+            kris1 = SaveSection(source, new Rectangle(0, 16, 16, 16), palette1, kris1);
+            kris1.Save("Assets/" + name + "-0.png", ImageFormat.Png);
+            Console.WriteLine("Outputting " + name + "-0.png");
+
+            Bitmap kris2;
+            kris2 = SaveSection(source, new Rectangle(0, 16, 16, 16), palette2, null);
+            kris2.Save("Assets/" + name + "-2.png", ImageFormat.Png);
+            Console.WriteLine("Outputting " + name + "-2.png");
+        }
+
         static void GenerateKrisGraphics()
         {
-            Bitmap krisIdle = GetBaseImage("Assets/Img_25.png", new Rectangle(120, 1027, 40, 48));
+            Bitmap krisIdle0 = GetBaseImage("Assets/Img_25.png", new Rectangle(120, 1027, 40, 48));
+            krisIdle0.Save("Kris_Idle0.png", ImageFormat.Png);
+
+            Bitmap krisIdle1 = GetBaseImage("Assets/Img_26.png", new Rectangle(1221, 1760, 40, 48));    BlankSection(krisIdle1, new Rectangle(36, 7, 2, 7)); BlankSection(krisIdle1, new Rectangle(0, 38, 40, 10));
+            Bitmap krisIdle2 = GetBaseImage("Assets/Img_26.png", new Rectangle(1219, 967, 40, 48));     BlankSection(krisIdle2, new Rectangle(36, 7, 2, 7)); BlankSection(krisIdle2, new Rectangle(0, 38, 40, 10));
+            Bitmap krisIdle3 = GetBaseImage("Assets/Img_26.png", new Rectangle(1220, 1170, 40, 48));    BlankSection(krisIdle3, new Rectangle(36, 7, 2, 7)); BlankSection(krisIdle3, new Rectangle(0, 38, 40, 10));
+            Bitmap krisIdle4 = GetBaseImage("Assets/Img_26.png", new Rectangle(1219, 271, 40, 48));     BlankSection(krisIdle4, new Rectangle(36, 7, 2, 7)); BlankSection(krisIdle4, new Rectangle(0, 38, 40, 10));
+            Bitmap krisIdle5 = GetBaseImage("Assets/Img_26.png", new Rectangle(1218, 1472, 40, 48));    BlankSection(krisIdle5, new Rectangle(36, 7, 2, 7)); BlankSection(krisIdle5, new Rectangle(0, 38, 40, 10));
 
             List<Color> KrisPalette0 = new List<Color> { Color.FromArgb(255, 255, 255, 255), Color.FromArgb(117, 251, 237), Color.FromArgb(106, 123, 196), Color.FromArgb(11, 11, 59) };
             List<Color> KrisPalette1 = new List<Color> { Color.FromArgb(255, 255, 255, 255), Color.FromArgb(255, 215, 215), Color.FromArgb(242, 161, 161), Color.FromArgb(72, 1, 46) };
             List<Color> KrisPalette2 = new List<Color> { Color.FromArgb(255, 255, 255, 255), Color.FromArgb(235, 0, 149), Color.FromArgb(199, 227, 242), Color.FromArgb(131, 21, 90) };
 
             Bitmap kris0_0;
-            kris0_0 = SaveSection(krisIdle, new Rectangle(0, 0, 24, 16), KrisPalette0, null);
-            kris0_0 = SaveSection(krisIdle, new Rectangle(0, 16, 16, 16), KrisPalette0, kris0_0);
-            kris0_0 = SaveSection(krisIdle, new Rectangle(16, 16, 16, 16), KrisPalette0, kris0_0);
-            kris0_0 = SaveSection(krisIdle, new Rectangle(0, 32, 24, 16), KrisPalette0, kris0_0);
+            kris0_0 = SaveSection(krisIdle0, new Rectangle(0, 0, 24, 16), KrisPalette0, null);
+            kris0_0 = SaveSection(krisIdle0, new Rectangle(0, 16, 16, 16), KrisPalette0, kris0_0);
+            kris0_0 = SaveSection(krisIdle0, new Rectangle(16, 16, 16, 16), KrisPalette0, kris0_0);
+            kris0_0 = SaveSection(krisIdle0, new Rectangle(0, 32, 24, 16), KrisPalette0, kris0_0);
             kris0_0.Save("Assets/Kris_Idle0-0.png", ImageFormat.Png);
             Console.WriteLine("Outputting Kris_Idle0-0.png");
 
             Bitmap kris0_1;
-            kris0_1 = SaveSection(krisIdle, new Rectangle(24, 0, 16, 16), KrisPalette1, null);
-            kris0_1 = SaveSection(krisIdle, new Rectangle(16, 16, 16, 16), KrisPalette1, kris0_1);
+            kris0_1 = SaveSection(krisIdle0, new Rectangle(24, 0, 16, 16), KrisPalette1, null);
+            kris0_1 = SaveSection(krisIdle0, new Rectangle(16, 16, 16, 16), KrisPalette1, kris0_1);
             kris0_1.Save("Assets/Kris_Idle0-1.png", ImageFormat.Png);
             Console.WriteLine("Outputting Kris_Idle0-1.png");
 
             Bitmap kris0_2;
-            kris0_2 = SaveSection(krisIdle, new Rectangle(0, 16, 16, 16), KrisPalette2, null);
-            kris0_2 = SaveSection(krisIdle, new Rectangle(16, 16, 16, 16), KrisPalette2, kris0_2);
-            kris0_2 = SaveSection(krisIdle, new Rectangle(8, 32, 16, 16), KrisPalette2, kris0_2);
+            kris0_2 = SaveSection(krisIdle0, new Rectangle(0, 16, 16, 16), KrisPalette2, null);
+            kris0_2 = SaveSection(krisIdle0, new Rectangle(16, 16, 16, 16), KrisPalette2, kris0_2);
+            kris0_2 = SaveSection(krisIdle0, new Rectangle(8, 32, 16, 16), KrisPalette2, kris0_2);
             kris0_2.Save("Assets/Kris_Idle0-2.png", ImageFormat.Png);
             Console.WriteLine("Outputting Kris_Idle0-2.png");
+
+            OutputAdditionalKrisFrame(krisIdle1, KrisPalette0, KrisPalette2, "Kris_Idle1");
+            OutputAdditionalKrisFrame(krisIdle2, KrisPalette0, KrisPalette2, "Kris_Idle2");
+            OutputAdditionalKrisFrame(krisIdle3, KrisPalette0, KrisPalette2, "Kris_Idle3");
+            OutputAdditionalKrisFrame(krisIdle4, KrisPalette0, KrisPalette2, "Kris_Idle4");
+            OutputAdditionalKrisFrame(krisIdle5, KrisPalette0, KrisPalette2, "Kris_Idle5");       
         }
 
         private static void GenerateMausGraphics()
@@ -276,9 +303,9 @@ namespace AssetRipper
                 }
             }
 
-            #if DEBUG
+#if DEBUG
             Console.ReadLine();
-            #endif
+#endif
         }  
     }
 

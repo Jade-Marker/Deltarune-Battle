@@ -40,12 +40,20 @@ SCROLLING_DELAY EQU 6
 
 SPRITE_SIZE EQU 4
 
+ANIM_FRAME_DELAY EQU 20
+
 KRIS_X EQU 24 + OAM_X_OFS
 KRIS_Y EQU 7 + OAM_Y_OFS
+KRIS_NUM_FRAMES EQU 6
 
 MAUS_X EQU 113 + OAM_X_OFS
 MAUS_Y EQU 49 + OAM_Y_OFS
 MAUS_PAL_START EQU 3
+MAUS_TILE_START EQU $7E
+
+SUSIE_X EQU 24 + OAM_X_OFS
+SUSIE_Y EQU 65 + OAM_Y_OFS
+SUSIE_TILE_START EQU $92
 
 KRIS_LY_INT EQU KRIS_Y + 16 - OAM_Y_OFS
 SUSIE_LY_INT_0 EQU KRIS_Y + 16*2 + 6 - OAM_Y_OFS
@@ -230,6 +238,14 @@ Start::
 	ld bc, EndOfSusie - SusieIdle
 	call Memcpy
 	
+	ld hl, KrisRow0
+	ld de, Kris_Buffer
+	ld bc, KrisRowEnd - KrisRow0
+	call Memcpy
+	
+	ld a, 1
+	ld [Kris_frame], a
+	
 	ld a, OCPSF_AUTOINC
 	ld hl, KrisPalettes
 	ld b, 3 * PALETTE_SIZE
@@ -264,6 +280,7 @@ Main::
 
 VblankInterrupt::
 	call Scrolling
+	call UpdateKris
 	call UpdateSpriteBuffer
 	call gbt_update
 	ret
@@ -303,10 +320,11 @@ UpdateSpriteBuffer::
 	ld b, 3 * PALETTE_SIZE
 	call LoadSpritePalettes
 
-	ld hl, KrisRow0
+	ld hl, Kris_Buffer
 	ld de, _OAMRAM
-	ld bc, SPRITE_SIZE * (KrisRow2 - KrisRow0)/4
-	call Memcpy		;Set the first 2 rows in preparation for the next frame
+	ld b, SPRITE_SIZE * (KrisRow2 - KrisRow0)/4
+	;call Memcpy		;Set the first 2 rows in preparation for the next frame
+	ScanlineMemcpy
 	
 	;This needs to be scanlineMemcpy, since it sometimes overruns out of vblank
 	ld hl, MausRow0
@@ -364,5 +382,66 @@ SusieUpdate1::
 	ld b, SPRITE_SIZE * (SusieRowEnd - SusieRow2)/4
 	ScanlineMemcpy
 	ret
+
+UpdateKris::
+	ld a, [Kris_counter]
+	inc a
+	ld [Kris_counter], a
+	cp ANIM_FRAME_DELAY - 1
+	ret nz
 	
+	xor a
+	ld [Kris_counter], a
+	
+	ld a, [Kris_frame]
+	or a
+	jr z, .frame0
+	cp 1
+	jr z, .frame1
+	cp 2
+	jr z, .frame2
+	cp 3
+	jr z, .frame3
+	cp 4
+	jr z, .frame4
+	jr .frame5
+	
+.frame0:
+	ld hl, KrisRow0
+	jr .updateBuffer
+	
+.frame1:
+	ld hl, KrisRow1_0
+	jr .updateBuffer
+	
+.frame2:
+	ld hl, KrisRow2_0
+	jr .updateBuffer
+	
+.frame3:
+	ld hl, KrisRow3_0
+	jr .updateBuffer
+
+.frame4:
+	ld hl, KrisRow4_0
+	jr .updateBuffer
+
+.frame5:
+	ld hl, KrisRow5_0
+
+.updateBuffer:
+	ld de, Kris_Buffer + 2
+	ld b, (KrisRowEnd - KrisRow0)/4
+	call UpdateWramSpriteBuffer
+	
+	ld a, [Kris_frame]
+	inc a
+	
+	cp KRIS_NUM_FRAMES
+	jr nz, .storeFrame
+	xor a
+.storeFrame:
+	ld [Kris_frame], a
+	ret
+
 ;*** End Of File ***
